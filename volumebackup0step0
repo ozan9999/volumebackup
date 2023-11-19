@@ -1,0 +1,61 @@
+version: '3.0'
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    networks:
+      - ozanet
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: ozancannn
+      MINIO_ROOT_PASSWORD: ozancannn
+      MINIO_ACCESS_KEY: ozancannn
+      MINIO_ACCESS_SECRET: ozancannn
+    command: 
+      - server
+      - /data/mybucket0
+      - --console-address
+      - ":9001"
+    volumes:
+      - /backups:/data/mybucket0
+      
+             
+  web1:
+    image: nginx:latest
+    ports:
+      - "1001:80"
+    volumes:
+      - bbk:/usr/share/nginx/html
+    networks:
+      - ozanet
+
+  web2:
+    image: nginx:latest
+    ports:
+      - "1002:80"
+    volumes:
+      - bbk:/usr/share/nginx/html
+    networks:
+      - ozanet
+
+  backup:
+    image: jareware/docker-volume-backup
+    volumes:
+      - bbk:/backup/nginx-data:ro
+      - /backups:/archive
+    networks:
+      - ozanet
+    environment:
+      BACKUP_CRON_EXPRESSION: "* * * * *"   
+    
+volumes:
+  bbk:
+  
+
+
+networks:
+  ozanet:
+    driver: bridge
